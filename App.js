@@ -14,6 +14,9 @@ export default function App() {
   const [task, setTask] = useState("");
   const [energyLevel, setEnergyLevel] = useState(3);
 
+  const [steps, setSteps] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");   
+
   const energyLabels = {
     1: "Drained",
     2: "Low",
@@ -21,6 +24,73 @@ export default function App() {
     4: "Good",
     5: "Ready",
   };
+
+  const createSteps = () => {
+  const cleanedTask = task.trim();
+
+  if (cleanedTask === "") {
+    setErrorMessage(
+      "Enter a task first so we know what to help you break down."
+    );
+    setSteps([]);
+    return;
+  }
+
+  setErrorMessage("");
+
+  const lowerTask = cleanedTask.toLowerCase();
+  let mainSteps;
+
+  if (
+    lowerTask.includes("study") ||
+    lowerTask.includes("homework") ||
+    lowerTask.includes("assignment")
+  ) {
+    mainSteps = [
+      "Read the instructions and choose one section to begin with.",
+      "Work on that section without worrying about the rest yet.",
+      "Review what you finished and mark what still needs attention.",
+    ];
+  } else if (
+    lowerTask.includes("clean") ||
+    lowerTask.includes("organize") ||
+    lowerTask.includes("room")
+  ) {
+    mainSteps = [
+      "Choose one small area instead of working on the whole space.",
+      "Separate what belongs there from what needs to be moved.",
+      "Put away or remove the items from that one area.",
+    ];
+  } else if (
+    lowerTask.includes("presentation") ||
+    lowerTask.includes("project") ||
+    lowerTask.includes("slides")
+  ) {
+    mainSteps = [
+      "Write a short outline of the main points you want to cover.",
+      "Create a basic first version without focusing on appearance.",
+      "Review the work and improve one section at a time.",
+    ];
+  } else {
+    mainSteps = [
+      "Decide what finished would look like for this task.",
+      "Start with the easiest part for ten minutes.",
+      "Review your progress and choose the next small action.",
+    ];
+  }
+
+  if (energyLevel <= 2) {
+    mainSteps = [
+      "Gather only the first thing you need to begin.",
+      ...mainSteps,
+      "Pause, recognize your progress, and decide whether to continue.",
+    ];
+  } else if (energyLevel === 3) {
+    mainSteps = ["Gather what you need to begin.", ...mainSteps];
+  }
+
+  setSteps(mainSteps);
+};
 
   return (
     <SafeAreaView style={styles.page}>
@@ -77,14 +147,38 @@ export default function App() {
           <Text style={styles.energyLabel}>
             {energyLabels[energyLevel]}
           </Text>
+          
+{errorMessage !== "" && (
+  <Text style={styles.errorText}>{errorMessage}</Text>
+)}
 
-          <TouchableOpacity style={styles.mainButton}>
-            <Text style={styles.mainButtonText}>Help me get started</Text>
-          </TouchableOpacity>
+<TouchableOpacity
+  style={styles.mainButton}
+  onPress={createSteps}
+>
+  <Text style={styles.mainButtonText}>Help me get started</Text>
+</TouchableOpacity>
 
-          <Text style={styles.supportText}>
-            There is no pressure to finish everything at once.
-          </Text>
+{steps.length > 0 && (
+  <View style={styles.results}>
+    <Text style={styles.resultsTitle}>Your smaller steps</Text>
+    <Text style={styles.taskName}>{task.trim()}</Text>
+
+    {steps.map((step, index) => (
+      <View style={styles.stepCard} key={index}>
+        <View style={styles.stepNumber}>
+          <Text style={styles.stepNumberText}>{index + 1}</Text>
+        </View>
+
+        <Text style={styles.stepText}>{step}</Text>
+      </View>
+    ))}
+  </View>
+)}
+
+<Text style={styles.supportText}>
+  There is no pressure to finish everything at once.
+</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -202,6 +296,59 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
+  errorText: {
+  color: "#E8A3B3",
+  fontSize: 14,
+  lineHeight: 20,
+  marginBottom: 14,
+},
+results: {
+  borderTopColor: "#303A57",
+  borderTopWidth: 1,
+  marginTop: 28,
+  paddingTop: 24,
+},
+resultsTitle: {
+  color: "#F0F2FA",
+  fontSize: 21,
+  fontWeight: "700",
+  marginBottom: 5,
+},
+taskName: {
+  color: "#9FBCE8",
+  fontSize: 14,
+  marginBottom: 17,
+},
+stepCard: {
+  alignItems: "flex-start",
+  backgroundColor: "#151A2A",
+  borderColor: "#303A57",
+  borderWidth: 1,
+  borderRadius: 12,
+  flexDirection: "row",
+  marginBottom: 10,
+  padding: 13,
+},
+stepNumber: {
+  alignItems: "center",
+  backgroundColor: "#6658C7",
+  borderRadius: 15,
+  height: 30,
+  justifyContent: "center",
+  marginRight: 12,
+  width: 30,
+},
+stepNumberText: {
+  color: "#FFFFFF",
+  fontSize: 14,
+  fontWeight: "700",
+},
+stepText: {
+  color: "#DCE1EF",
+  flex: 1,
+  fontSize: 15,
+  lineHeight: 21,
+},
   supportText: {
     color: "#8791AD",
     fontSize: 13,
