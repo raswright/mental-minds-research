@@ -17,6 +17,8 @@ export default function App() {
   const [steps, setSteps] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");   
 
+  const [completedSteps, setCompletedSteps] = useState([]);
+
   const energyLabels = {
     1: "Drained",
     2: "Low",
@@ -89,8 +91,25 @@ export default function App() {
     mainSteps = ["Gather what you need to begin.", ...mainSteps];
   }
 
+  setCompletedSteps([]);
   setSteps(mainSteps);
 };
+
+const toggleStep = (stepIndex) => {
+  if (completedSteps.includes(stepIndex)) {
+    const updatedSteps = completedSteps.filter(
+      (index) => index !== stepIndex
+    );
+    setCompletedSteps(updatedSteps);
+  } else {
+    setCompletedSteps([...completedSteps, stepIndex]);
+  }
+};
+
+const progressPercent =
+  steps.length === 0
+    ? 0
+    : Math.round((completedSteps.length / steps.length) * 100);
 
   return (
     <SafeAreaView style={styles.page}>
@@ -147,7 +166,7 @@ export default function App() {
           <Text style={styles.energyLabel}>
             {energyLabels[energyLevel]}
           </Text>
-          
+
 {errorMessage !== "" && (
   <Text style={styles.errorText}>{errorMessage}</Text>
 )}
@@ -164,15 +183,58 @@ export default function App() {
     <Text style={styles.resultsTitle}>Your smaller steps</Text>
     <Text style={styles.taskName}>{task.trim()}</Text>
 
-    {steps.map((step, index) => (
-      <View style={styles.stepCard} key={index}>
-        <View style={styles.stepNumber}>
-          <Text style={styles.stepNumberText}>{index + 1}</Text>
-        </View>
+    <View style={styles.progressHeading}>
+      <Text style={styles.progressText}>Your progress</Text>
+      <Text style={styles.progressPercent}>{progressPercent}%</Text>
+    </View>
 
-        <Text style={styles.stepText}>{step}</Text>
-      </View>
-    ))}
+    <View style={styles.progressBar}>
+      <View
+        style={[
+          styles.progressFill,
+          { width: `${progressPercent}%` },
+        ]}
+      />
+    </View>
+
+    {steps.map((step, index) => {
+      const isCompleted = completedSteps.includes(index);
+
+      return (
+        <TouchableOpacity
+          style={[
+            styles.stepCard,
+            isCompleted && styles.completedStepCard,
+          ]}
+          key={index}
+          onPress={() => toggleStep(index)}
+        >
+          <View
+            style={[
+              styles.stepNumber,
+              isCompleted && styles.completedStepNumber,
+            ]}
+          >
+            <Text style={styles.stepNumberText}>
+              {isCompleted ? "✓" : index + 1}
+            </Text>
+          </View>
+
+          <Text
+            style={[
+              styles.stepText,
+              isCompleted && styles.completedStepText,
+            ]}
+          >
+            {step}
+          </Text>
+        </TouchableOpacity>
+      );
+    })}
+
+    <Text style={styles.tapMessage}>
+      Tap a step when you complete it.
+    </Text>
   </View>
 )}
 
@@ -348,6 +410,50 @@ stepText: {
   flex: 1,
   fontSize: 15,
   lineHeight: 21,
+},
+progressHeading: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginBottom: 9,
+},
+progressText: {
+  color: "#DCE1EF",
+  fontSize: 14,
+  fontWeight: "600",
+},
+progressPercent: {
+  color: "#9FBCE8",
+  fontSize: 14,
+  fontWeight: "700",
+},
+progressBar: {
+  backgroundColor: "#303A57",
+  borderRadius: 6,
+  height: 10,
+  marginBottom: 20,
+  overflow: "hidden",
+},
+progressFill: {
+  backgroundColor: "#7468D8",
+  borderRadius: 6,
+  height: "100%",
+},
+completedStepCard: {
+  backgroundColor: "#242B40",
+  borderColor: "#50638A",
+},
+completedStepNumber: {
+  backgroundColor: "#456FAD",
+},
+completedStepText: {
+  color: "#929BB5",
+  textDecorationLine: "line-through",
+},
+tapMessage: {
+  color: "#8791AD",
+  fontSize: 13,
+  textAlign: "center",
+  marginTop: 5,
 },
   supportText: {
     color: "#8791AD",
