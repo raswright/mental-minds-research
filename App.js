@@ -18,6 +18,9 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState("");   
 
   const [completedSteps, setCompletedSteps] = useState([]);
+  
+  const [customStep, setCustomStep] = useState("");
+  const [showResetQuestion, setShowResetQuestion] = useState(false);
 
   const energyLabels = {
     1: "Drained",
@@ -110,6 +113,27 @@ const progressPercent =
   steps.length === 0
     ? 0
     : Math.round((completedSteps.length / steps.length) * 100);
+
+const addCustomStep = () => {
+const cleanedStep = customStep.trim();
+
+  if (cleanedStep === "") {
+    return;
+  }
+
+  setSteps([...steps, cleanedStep]);
+  setCustomStep("");
+};
+
+const resetApp = () => {
+  setTask("");
+  setEnergyLevel(3);
+  setSteps([]);
+  setCompletedSteps([]);
+  setErrorMessage("");
+  setCustomStep("");
+  setShowResetQuestion(false);
+};
 
   return (
     <SafeAreaView style={styles.page}>
@@ -232,9 +256,66 @@ const progressPercent =
       );
     })}
 
+
+< View style={styles.customStepArea}>
+  <Text style={styles.customStepLabel}>
+    Want to add a step of your own?
+  </Text>
+
+  <View style={styles.customStepRow}>
+    <TextInput
+      style={styles.customStepInput}
+      placeholder="Add another step"
+      placeholderTextColor="#7f89a8"
+      value={customStep}
+      onChangeText={setCustomStep}
+      onSubmitEditing={addCustomStep}
+    />
+
+    <TouchableOpacity
+      style={styles.addStepButton}
+      onPress={addCustomStep}
+    >
+      <Text style={styles.addStepButtonText}>Add</Text>
+    </TouchableOpacity>
+  </View>
+</View>
+
     <Text style={styles.tapMessage}>
       Tap a step when you complete it.
     </Text>
+
+    {showResetQuestion ? (
+  <View style={styles.resetQuestion}>
+    <Text style={styles.resetQuestionText}>
+      Are you sure you want to clear this task and your progress?
+    </Text>
+
+    <View style={styles.resetChoiceRow}>
+      <TouchableOpacity
+        style={styles.cancelButton}
+        onPress={() => setShowResetQuestion(false)}
+      >
+        <Text style={styles.cancelButtonText}>Keep working</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.confirmResetButton}
+        onPress={resetApp}
+      >
+        <Text style={styles.confirmResetText}>Start over</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+) : (
+  <TouchableOpacity
+    style={styles.startOverButton}
+    onPress={() => setShowResetQuestion(true)}
+  >
+    <Text style={styles.startOverText}>Start over</Text>
+  </TouchableOpacity>
+)}
+
   </View>
 )}
 
@@ -454,6 +535,98 @@ tapMessage: {
   fontSize: 13,
   textAlign: "center",
   marginTop: 5,
+},
+customStepArea: {
+  borderTopColor: "#303A57",
+  borderTopWidth: 1,
+  marginTop: 20,
+  paddingTop: 20,
+},
+customStepLabel: {
+  color: "#DCE1EF",
+  fontSize: 14,
+  fontWeight: "600",
+  marginBottom: 9,
+},
+customStepRow: {
+  flexDirection: "row",
+  gap: 9,
+},
+customStepInput: {
+  backgroundColor: "#151A2A",
+  borderColor: "#3B4665",
+  borderWidth: 1,
+  borderRadius: 11,
+  color: "#F0F2FA",
+  flex: 1,
+  fontSize: 14,
+  paddingHorizontal: 12,
+  paddingVertical: 11,
+},
+addStepButton: {
+  alignItems: "center",
+  backgroundColor: "#6658C7",
+  borderRadius: 11,
+  justifyContent: "center",
+  paddingHorizontal: 18,
+},
+addStepButtonText: {
+  color: "#FFFFFF",
+  fontSize: 14,
+  fontWeight: "700",
+},
+resetQuestion: {
+  backgroundColor: "#151A2A",
+  borderColor: "#3B4665",
+  borderWidth: 1,
+  borderRadius: 12,
+  marginTop: 20,
+  padding: 14,
+},
+resetQuestionText: {
+  color: "#DCE1EF",
+  fontSize: 14,
+  lineHeight: 20,
+  marginBottom: 13,
+},
+resetChoiceRow: {
+  flexDirection: "row",
+  gap: 9,
+},
+cancelButton: {
+  alignItems: "center",
+  borderColor: "#4D5A7D",
+  borderWidth: 1,
+  borderRadius: 10,
+  flex: 1,
+  paddingVertical: 10,
+},
+cancelButtonText: {
+  color: "#BFC6DA",
+  fontSize: 13,
+  fontWeight: "600",
+},
+confirmResetButton: {
+  alignItems: "center",
+  backgroundColor: "#6D4054",
+  borderRadius: 10,
+  flex: 1,
+  paddingVertical: 10,
+},
+confirmResetText: {
+  color: "#FFFFFF",
+  fontSize: 13,
+  fontWeight: "600",
+},
+startOverButton: {
+  alignItems: "center",
+  marginTop: 18,
+  paddingVertical: 9,
+},
+startOverText: {
+  color: "#A7B3D2",
+  fontSize: 14,
+  textDecorationLine: "underline",
 },
   supportText: {
     color: "#8791AD",
